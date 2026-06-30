@@ -7,11 +7,13 @@ const Skills = ({ skillsData, updateSkills }) => {
     const { devMode } = useAdmin();
     const [skill, setSkill] = useState([]);
 
+    // UI State
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [showMore, setShowMore] = useState(false);
-    const [selectedSkill, setSelectedSkill] = useState(null); 
+    const [selectedSkill, setSelectedSkill] = useState(null);
 
+    // Admin State
     const [isAdding, setIsAdding] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -60,6 +62,7 @@ const Skills = ({ skillsData, updateSkills }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     }
 
+    // --- Admin Functions ---
     const handleAddSkill = async (e) => {
         e.preventDefault();
         if (!formData.skillName.trim()) return;
@@ -111,6 +114,7 @@ const Skills = ({ skillsData, updateSkills }) => {
         setIsEditing(true);
     }
 
+    // --- Filtering Logic ---
     const filteredSkills = skill.filter(sk => {
         const matchesCategory = selectedCategory === 'All' || sk.category?.toLowerCase() === selectedCategory.toLowerCase();
         const matchesSearch = sk.skillName?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -128,13 +132,14 @@ const Skills = ({ skillsData, updateSkills }) => {
         return <img src={iconStr} alt="icon" className={`${sizeClass} object-contain`} />;
     };
 
+    // --- Framer Motion Variants ---
     const containerVariants = {
         hidden: { opacity: 0 },
         show: {
             opacity: 1,
             transition: {
                 staggerChildren: 0.08,
-                delayChildren: 0.2
+                delayChildren: 0.1
             }
         }
     };
@@ -146,14 +151,14 @@ const Skills = ({ skillsData, updateSkills }) => {
     };
 
     return (
-        <div className="min-h-screen bg-background px-4 sm:px-8 pt-16 flex flex-col justify-start items-center gap-8 transition-colors duration-300 relative overflow-hidden">
+        <div className="min-h-screen bg-background px-4 sm:px-8 pt-16 flex flex-col justify-start items-center gap-8 transition-colors duration-300 relative w-full overflow-hidden">
 
+            {/* Header Section */}
             <div className="text-center z-10 relative w-[90vw] md:w-[85vw] max-w-7xl flex flex-col items-center">
                 <h1 className="text-4xl md:text-5xl text-primary-text font-bold mb-2">Technical Skills</h1>
                 <p className="text-secondary-text text-md md:text-xl max-w-2xl">Here are some of my skills on which I have been working on recently</p>
-            </div>
-            {devMode && (
-                <div className="w-full max-w-6xl flex justify-end px-2 sm:px-4 z-10">
+
+                {devMode && (
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -165,10 +170,12 @@ const Skills = ({ skillsData, updateSkills }) => {
                         </svg>
                         Add Skill
                     </motion.button>
-                </div>
-            )}
+                )}
+            </div>
 
+            {/* Controls: Search and Category */}
             <div className="w-[90vw] md:w-[85vw] max-w-7xl flex flex-col md:flex-row justify-between items-center gap-4 mt-4 pb-6 border-b border-border z-10">
+                {/* Search Bar */}
                 <div className="relative w-full md:w-auto md:min-w-[300px]">
                     <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-4 text-secondary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -182,6 +189,7 @@ const Skills = ({ skillsData, updateSkills }) => {
                     />
                 </div>
 
+                {/* Category Bar */}
                 <div className="flex gap-2 overflow-x-auto w-full md:w-auto hide-scrollbar scroll-smooth">
                     {categories.map(cat => (
                         <button
@@ -198,73 +206,102 @@ const Skills = ({ skillsData, updateSkills }) => {
                 </div>
             </div>
 
+            {/* Skills Grid Area */}
             <div id="skills-grid" className="w-[90vw] md:w-[85vw] max-w-7xl relative mt-4">
-                <motion.div
-                    key={showMore ? "expanded" : "collapsed"}
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true, amount: 0.3 }}
-                    className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 ${!showMore && hasMore ? 'pb-24' : 'pb-6'}`}
-                >
-                    <AnimatePresence mode="popLayout">
-                        {displaySkills.map(sk => (
-                            <motion.div
-                                layoutId={`skill-card-${sk._id}`}
-                                variants={itemVariants} 
-                                key={sk._id}
-                                onClick={() => setSelectedSkill(sk)}
-                                whileHover={{ scale: 1.02 }}
-                                className="bg-card rounded-2xl p-5 border border-border cursor-pointer shadow-sm transition-colors duration-300 hover:shadow-glow relative overflow-hidden group"
+                <AnimatePresence mode="wait">
+                    {displaySkills.length === 0 ? (
+                        /* Empty State Div */
+                        <motion.div
+                            key="empty-state"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            className="flex flex-col items-center justify-center w-full py-20 text-center"
+                        >
+                            <div className="w-20 h-20 mb-6 rounded-full bg-card border border-border flex items-center justify-center shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-secondary-text">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-2xl font-bold text-primary-text mb-2">No skills found</h3>
+                            <p className="text-secondary-text max-w-md">
+                                We couldn't find any skills matching <span className="text-active-button font-medium">"{searchQuery}"</span> in the <span className="font-medium text-primary-text">{selectedCategory}</span> category.
+                            </p>
+                            <button 
+                                onClick={() => {setSearchQuery(''); setSelectedCategory('All');}}
+                                className="mt-6 px-6 py-2 bg-card border border-border hover:border-active-button text-primary-text rounded-full transition-all duration-300 shadow-sm"
                             >
-                                <div className="absolute -left-12 -top-12 w-40 h-40 bg-active-button/20 blur-[35px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0"></div>
+                                Clear Search
+                            </button>
+                        </motion.div>
+                    ) : (
+                        /* Populated Grid */
+                        <motion.div
+                            // The key incorporates the filters to force a remount and trigger stagger animation on change
+                            key={`${showMore ? "expanded" : "collapsed"}-${selectedCategory}-${searchQuery}`}
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="show"
+                            className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 ${!showMore && hasMore ? 'pb-24' : 'pb-6'}`}
+                        >
+                            {displaySkills.map(sk => (
+                                <motion.div
+                                    layoutId={`skill-card-${sk._id}`}
+                                    variants={itemVariants}
+                                    key={sk._id}
+                                    onClick={() => setSelectedSkill(sk)}
+                                    whileHover={{ scale: 1.02 }}
+                                    className="bg-card rounded-2xl p-5 border border-border cursor-pointer shadow-sm transition-colors duration-300 hover:shadow-glow relative overflow-hidden group"
+                                >
+                                    <div className="absolute -left-12 -top-12 w-40 h-40 bg-active-button/20 blur-[35px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0"></div>
 
-                                <div className="relative z-10 flex flex-col gap-3">
-                                    {devMode && (
-                                        <div className="absolute -top-2 -right-2 flex gap-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity bg-background/90 backdrop-blur rounded-lg p-1.5 border border-border">
-                                            <button onClick={(e) => startEditing(e, sk)} className="text-blue-500 hover:scale-110 transition-transform">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M7.127 22.562l-7.127 1.438 1.438-7.128 5.689 5.69zm1.414-1.414l11.228-11.225-5.69-5.692-11.227 11.227 5.689 5.69zm9.768-21.148l-2.816 2.817 5.691 5.691 2.816-2.819-5.691-5.689z" /></svg>
-                                            </button>
-                                            <button onClick={(e) => handleDeleteSkill(e, sk)} className="text-red-500 hover:scale-110 transition-transform">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z" /></svg>
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex items-center justify-center text-primary-text drop-shadow-sm">
-                                                {renderIcon(sk.icon, "w-7 h-7")}
+                                    <div className="relative z-10 flex flex-col gap-3">
+                                        {devMode && (
+                                            <div className="absolute -top-2 -right-2 flex gap-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity bg-background/90 backdrop-blur rounded-lg p-1.5 border border-border">
+                                                <button onClick={(e) => startEditing(e, sk)} className="text-blue-500 hover:scale-110 transition-transform">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M7.127 22.562l-7.127 1.438 1.438-7.128 5.689 5.69zm1.414-1.414l11.228-11.225-5.69-5.692-11.227 11.227 5.689 5.69zm9.768-21.148l-2.816 2.817 5.691 5.691 2.816-2.819-5.691-5.689z" /></svg>
+                                                </button>
+                                                <button onClick={(e) => handleDeleteSkill(e, sk)} className="text-red-500 hover:scale-110 transition-transform">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M3 6l3 18h12l3-18h-18zm19-4v2h-20v-2h5.711c.9 0 1.631-1.099 1.631-2h5.316c0 .901.73 2 1.631 2h5.711z" /></svg>
+                                                </button>
                                             </div>
-                                            <h3 className="text-primary-text font-bold text-md tracking-wide">{sk.skillName}</h3>
+                                        )}
+
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex items-center justify-center text-primary-text drop-shadow-sm">
+                                                    {renderIcon(sk.icon, "w-7 h-7")}
+                                                </div>
+                                                <h3 className="text-primary-text font-bold text-md tracking-wide">{sk.skillName}</h3>
+                                            </div>
+                                            <span className="text-active-button font-bold text-sm">{sk.proficiency || 50}%</span>
                                         </div>
-                                        <span className="text-active-button font-bold text-sm">{sk.proficiency || 50}%</span>
-                                    </div>
 
-                                    <div className="w-full bg-background border border-border/40 h-[6px] rounded-full overflow-hidden mt-1 relative z-10">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${sk.proficiency || 50}%` }}
-                                            transition={{ duration: 1, ease: "easeOut" }}
-                                            className="bg-active-button h-full rounded-full"
-                                        />
-                                    </div>
-
-                                    {sk.topics && (
-                                        <div className="text-xs text-secondary-text line-clamp-1 mt-1 font-medium">
-                                            {sk.topics}
+                                        <div className="w-full bg-background border border-border/40 h-[6px] rounded-full overflow-hidden mt-1 relative z-10">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${sk.proficiency || 50}%` }}
+                                                transition={{ duration: 1, ease: "easeOut" }}
+                                                className="bg-active-button h-full rounded-full"
+                                            />
                                         </div>
-                                    )}
-                                </div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
-                </motion.div>
 
-                {!showMore && hasMore && (
+                                        {sk.topics && (
+                                            <div className="text-xs text-secondary-text line-clamp-1 mt-1 font-medium">
+                                                {sk.topics}
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Show More Overlay & Button */}
+                {!showMore && hasMore && displaySkills.length > 0 && (
                     <div className="absolute bottom-0 -left-1 w-[85vw] h-56 flex flex-col items-center justify-end pb-4 z-20">
                         <div className="absolute inset-0 bg-background/50 backdrop-blur-[3px] bg-gradient-to-t from-background/95 via-background/60 to-transparent pointer-events-auto z-10 rounded-b-2xl" />
-
                         <button
                             onClick={() => setShowMore(true)}
                             className="relative z-20 bg-active-button hover:bg-base-button text-white px-6 py-2 rounded-full transition shadow-lg hover:shadow-xl hover:-translate-y-0.5"
@@ -274,7 +311,8 @@ const Skills = ({ skillsData, updateSkills }) => {
                     </div>
                 )}
 
-                {showMore && (
+                {/* Show Less Button */}
+                {showMore && displaySkills.length > 0 && (
                     <div className="flex justify-center mt-6 mb-4">
                         <button
                             onClick={() => {
@@ -294,8 +332,10 @@ const Skills = ({ skillsData, updateSkills }) => {
                 )}
             </div>
 
+            {/* Modals Section */}
             <AnimatePresence>
 
+                {/* 1. Skill Details Modal (Layout Animation) */}
                 {selectedSkill && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                         <motion.div
@@ -370,6 +410,7 @@ const Skills = ({ skillsData, updateSkills }) => {
                     </div>
                 )}
 
+                {/* 2. Admin Form Modal (Add/Edit) */}
                 {(isAdding || isEditing) && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                         <motion.div
