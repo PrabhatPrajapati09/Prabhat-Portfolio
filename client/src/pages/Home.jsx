@@ -7,6 +7,7 @@ import Projects from './Projects'
 import Contact from './Contact'
 import GithubStats from './GithubStats'
 import Footer from '../components/Footer'
+import CursorGlow from '../components/CursorGlow'
 
 const Home = ({
   portfolioData, setPortfolioData,
@@ -26,7 +27,8 @@ const Home = ({
 
   return (
     <div className={theme}>
-      <Navbar theme={theme} setTheme={setTheme} />
+      <CursorGlow theme={theme} />
+      <Navbar theme={theme} setTheme={setTheme} data={portfolioData} />
       <Hero_section data={portfolioData} setPortfolioData={setPortfolioData} />
       <Aboutme data={portfolioData} setPortfolioData={setPortfolioData} />
       <Skills skillsData={skillsData} updateSkills={setSkillsData} />

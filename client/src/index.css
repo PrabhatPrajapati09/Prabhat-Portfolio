@@ -47,8 +47,8 @@ body {
   --card: 255 255 255;
   --primary-text: 15 23 42;
   --secondary-text: 71 85 105;
-  --base-button: 151, 68, 227;
-  --active-button: 133, 52, 204;
+  --base-button: 151 68 227;
+  --active-button: 133 52 204;
   --disabled-button: 233 213 255;
   --border: 226 232 240; 
 }

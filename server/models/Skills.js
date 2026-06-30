@@ -9,6 +9,10 @@ const Skills = new mongoose.Schema({
         type: String,
         required: true
     },
+    topics: {
+        type: String,
+        required: true
+    },
     description:{
         type: String,
         required: true
@@ -16,6 +20,10 @@ const Skills = new mongoose.Schema({
     category: {
         type: String,
         required: true
+    },
+    proficiency: {
+        type: Number,
+        default: 50
     }
 })
 
